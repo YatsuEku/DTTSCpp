@@ -1,0 +1,39 @@
+# CMake
+/out/
+/build/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+*.ninja
+.ninja_deps
+.ninja_log
+
+# Visual Studio / VS Code
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.VC.db
+*.VC.VC.opendb
+*.opendb
+*.suo
+
+# Build artifacts
+*.exe
+*.dll
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.obj
+*.iobj
+*.ipdb
+
+# vcpkg local installation
+/vcpkg_installed/
+
+# OS
+.DS_Store
+Thumbs.db
