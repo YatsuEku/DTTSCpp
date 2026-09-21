@@ -1,7 +1,8 @@
 #include "world/World.h"
 
-World::World()
-    : player()
+World::World(const ContentLoader& content)
+    : content(content),
+    player(content.getTexture(TextureId::Player), sf::Vector2f{100, 100})
 {
 }
 

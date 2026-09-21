@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "world/World.h"
+#include "ContentLoader.h"
 
 int main()
 {
@@ -9,7 +10,9 @@ int main()
         "Dont Touch The Spikes"
     };
 
-    World world;
+    ContentLoader content("assets");
+    content.load();
+    World world{content};
 
     window.setFramerateLimit(60);
 
