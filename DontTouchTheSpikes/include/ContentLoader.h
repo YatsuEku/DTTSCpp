@@ -6,7 +6,10 @@
 
 enum class TextureId
 {
-    Player
+    PlayerDown,
+    PlayerUp,
+    BackgroundSpikes,
+    Spike
 };
 
 class ContentLoader
