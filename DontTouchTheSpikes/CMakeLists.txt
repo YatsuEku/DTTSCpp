@@ -26,3 +26,10 @@ target_compile_features(
     PRIVATE
         cxx_std_23
 )
+
+add_custom_command(
+        TARGET DontTouchTheSpikes POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/assets"
+        "$<TARGET_FILE_DIR:DontTouchTheSpikes>/assets"
+)

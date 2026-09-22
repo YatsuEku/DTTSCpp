@@ -38,7 +38,7 @@ void Game::update(float deltaTime)
 
 void Game::draw()
 {
-    window.clear();
+    window.clear(world.getBackgroundColor());
     world.draw(window);
     window.display();
 }
