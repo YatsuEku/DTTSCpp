@@ -33,6 +33,9 @@ void Game::update(float deltaTime)
             window.close();
     }
 
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && state == GameState::Menu)
+        setState(GameState::Playing);
+
     world.update(deltaTime);
 }
 

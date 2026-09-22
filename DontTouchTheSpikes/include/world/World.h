@@ -30,6 +30,7 @@ private:
     int score = 0;
 
     void setScoreColors();
+    std::string getScoreText() const;
 
     static inline const BackgroundColorScheme& getBackgroundColorScheme(int score)
     {

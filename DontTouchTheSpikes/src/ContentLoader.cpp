@@ -13,7 +13,8 @@ void ContentLoader::load()
     loadTexture(TextureId::PlayerDead, "Bird_dead.png");
     loadTexture(TextureId::BackgroundSpikes, "Spikes.png");
     loadTexture(TextureId::BackgroundScore, "ScoreCircle.png");
-    loadFont(FontId::Menu, "font.otf");
+    loadFont(FontId::Menu, "menu.otf");
+    loadFont(FontId::Score, "score.ttf");
 }
 
 void ContentLoader::loadTexture(TextureId id, const std::filesystem::path& path)

@@ -16,7 +16,8 @@ enum class TextureId
 
 enum class FontId
 {
-    Menu
+    Menu,
+    Score
 };
 
 class ContentLoader
