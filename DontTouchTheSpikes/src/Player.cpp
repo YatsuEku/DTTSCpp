@@ -79,6 +79,11 @@ void Player::bounceHorizontal()
     sprite.setScale({-scale.x, scale.y});
 }
 
+void Player::bounceHorizontal(float direction)
+{
+    this->direction = direction;
+}
+
 void Player::bounceVertical(float xDirection, float yDirection)
 {
     velocityY = DEATH_Y_BOUNCE_VELOCITY * yDirection;

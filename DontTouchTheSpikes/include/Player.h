@@ -30,7 +30,9 @@ public:
     void playMenuAnimation();
     void startPlaying();
     void update(float deltaTime);
+
     void bounceHorizontal();
+    void bounceHorizontal(float direction);
     void bounceVertical(float xDirection, float yDirection);
     void die();
     bool isPlayerDead() const;

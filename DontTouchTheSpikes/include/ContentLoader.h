@@ -46,7 +46,7 @@ private:
     std::unordered_map<FontId, sf::Font> fonts;
     std::unordered_map<SfxId, sf::SoundBuffer> sounds;
 
-    void loadTexture(TextureId id, const std::filesystem::path& path);
+    void loadTexture(TextureId id, const std::filesystem::path& path, bool smooth = false);
     void loadFont(FontId id, const std::filesystem::path& path);
     void loadSfx(SfxId id, const std::filesystem::path& path);
 };

@@ -8,6 +8,8 @@
 #include "core/GameState.h"
 #include <random>
 
+#include "Spike.h"
+
 constexpr int WORLD_WIDTH = 540;
 constexpr int WORLD_HEIGHT = 960;
 constexpr float TOP_SPIKES_HEIGHT = 45.0f;
@@ -32,10 +34,13 @@ private:
     sf::Text scoreText;
     sf::Sound pointSound;
     std::mt19937 rng{std::random_device{}()};
+    std::vector<Spike> spikes;
     int score = 0;
 
     void setScoreColors();
     std::string getScoreText() const;
+    void generateSpikes(SpikeSide side);
+    void handleSpikeCollision();
 
     static inline const BackgroundColorScheme& getBackgroundColorScheme(int score)
     {

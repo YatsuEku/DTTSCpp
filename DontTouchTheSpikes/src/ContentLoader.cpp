@@ -14,6 +14,7 @@ void ContentLoader::load()
     loadTexture(TextureId::BackgroundSpikes, "Spikes.png");
     loadTexture(TextureId::BackgroundScore, "ScoreCircle.png");
     loadTexture(TextureId::PlayerDead, "Bird_dead.png");
+    loadTexture(TextureId::Spike, "Spike.png", true);
     loadFont(FontId::Menu, "menu.otf");
     loadFont(FontId::Score, "score.ttf");
     loadSfx(SfxId::Point, "point.wav");
@@ -21,7 +22,7 @@ void ContentLoader::load()
     loadSfx(SfxId::Death, "dead.wav");
 }
 
-void ContentLoader::loadTexture(TextureId id, const std::filesystem::path& path)
+void ContentLoader::loadTexture(TextureId id, const std::filesystem::path& path, bool smooth)
 {
     sf::Texture texture;
 
@@ -33,6 +34,7 @@ void ContentLoader::loadTexture(TextureId id, const std::filesystem::path& path)
             );
     }
 
+    texture.setSmooth(smooth);
     textures.emplace(id, std::move(texture));
 }
 

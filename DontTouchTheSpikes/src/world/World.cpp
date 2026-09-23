@@ -43,12 +43,15 @@ void World::update(float deltaTime)
 
         if (!player.isPlayerDead())
         {
+            generateSpikes(SpikeSide::Left);
             score++;
             scoreText.setString(getScoreText());
             setScoreColors();
             pointSound.play();
         }
     }
+
+    handleSpikeCollision();
 
     const bool touchedTopSpikes = playerBounds.position.y <= TOP_SPIKES_HEIGHT;
     const bool touchedBottomSpikes = playerBounds.position.y + playerBounds.size.y >= WORLD_HEIGHT - BOTTOM_SPIKES_HEIGHT;
@@ -78,6 +81,9 @@ void World::draw(sf::RenderTarget& target) const
     target.draw(backgroundScore);
     target.draw(scoreText);
     target.draw(player);
+
+    for (auto& spike : spikes)
+        target.draw(spike);
 }
 
 void World::onGameStateChanged(GameState newState)
@@ -103,6 +109,9 @@ void World::setScoreColors()
     backgroundSpikes.setColor(scheme.spikes);
     backgroundColor = scheme.background;
     scoreText.setFillColor(scheme.background);
+
+    for (auto& spike: spikes)
+        spike.setSpikeColor(scheme.spikes);
 }
 
 std::string World::getScoreText() const
@@ -115,6 +124,28 @@ std::string World::getScoreText() const
         out = std::to_string(score);
 
     return out;
+}
+
+void World::generateSpikes(SpikeSide side)
+{
+    spikes.push_back(Spike(content.getTexture(TextureId::Spike), {100.0f, 200.0f}, SpikeSide::Left));
+    spikes.push_back(Spike(content.getTexture(TextureId::Spike), {200.0f, 200.0f}, SpikeSide::Right));
+}
+
+void World::handleSpikeCollision()
+{
+    for (auto& spike: spikes)
+    {
+        auto spikeBounds = spike.getBounds();
+        auto playerBounds = player.getBounds();
+
+        if (spikeBounds.findIntersection(playerBounds))
+        {
+            player.die();
+            std::uniform_real_distribution<float> dist(-6.0f, 6.0f);
+            player.bounceHorizontal(dist(rng));
+        }
+    }
 }
 
 sf::Color World::getBackgroundColor() const
