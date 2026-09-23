@@ -103,6 +103,11 @@ bool Player::isPlayerDead() const
     return isDead;
 }
 
+float Player::getVelocityY() const
+{
+    return velocityY;
+}
+
 sf::FloatRect Player::getBounds() const
 {
     return sprite.getGlobalBounds();
@@ -141,8 +146,7 @@ void Player::updateDeathAnimation(float deltaTime)
     currentColor.a = static_cast<std::uint8_t>(std::lerp(currentColor.a, 0, progress));
     sprite.setColor(currentColor);
 
-    deathAnimationRotation += deltaTime * 1000;
-    sprite.rotate(sf::degrees(deathAnimationRotation));
+    sprite.rotate(sf::degrees(DEATH_ROTATION_SPEED * deltaTime));
 }
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const

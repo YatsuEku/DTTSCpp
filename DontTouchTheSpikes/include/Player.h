@@ -14,6 +14,7 @@ constexpr float JUMP_VELOCITY = -450.0f;
 constexpr float DEATH_Y_BOUNCE_VELOCITY = -900.0f;
 
 constexpr float DEATH_ANIMATION_DURATION = 4.0f;
+constexpr float DEATH_ROTATION_SPEED = 1000.0f;
 
 enum class PlayerAnimationMode
 {
@@ -33,6 +34,7 @@ public:
     void bounceVertical(float xDirection, float yDirection);
     void die();
     bool isPlayerDead() const;
+    float getVelocityY() const;
     sf::FloatRect getBounds() const;
 private:
     sf::Sprite sprite;
@@ -46,7 +48,6 @@ private:
     float animationTime = 0;
     float direction = 1; // 1 right -1 left
     float velocityY = 0;
-    float deathAnimationRotation = 0;
     bool isPlaying = false;
     bool isDead = false;
     bool wasJumpPressed = false;

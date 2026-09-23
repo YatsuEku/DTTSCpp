@@ -53,11 +53,22 @@ void World::update(float deltaTime)
     const bool touchedTopSpikes = playerBounds.position.y <= TOP_SPIKES_HEIGHT;
     const bool touchedBottomSpikes = playerBounds.position.y + playerBounds.size.y >= WORLD_HEIGHT - BOTTOM_SPIKES_HEIGHT;
 
-    if (touchedTopSpikes || touchedBottomSpikes)
+    if (touchedTopSpikes && player.getVelocityY() < 0.0f)
     {
-        player.die();
+        if (!player.isPlayerDead())
+            player.die();
+
         std::uniform_real_distribution<float> dist(-6.0f, 6.0f);
-        player.bounceVertical(dist(rng), touchedBottomSpikes ? 1 : -1);
+        player.bounceVertical(dist(rng), -1.0f);
+    }
+
+    if (touchedBottomSpikes && player.getVelocityY() > 0.0f)
+    {
+        if (!player.isPlayerDead())
+            player.die();
+
+        std::uniform_real_distribution<float> dist(-6.0f, 6.0f);
+        player.bounceVertical(dist(rng), 1.0f);
     }
 }
 
