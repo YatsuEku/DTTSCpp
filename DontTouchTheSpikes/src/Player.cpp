@@ -1,36 +1,73 @@
 #include "Player.h"
-#include <math.h>
+#include <cmath>
+#include <print>
 #include "world/World.h"
 
-Player::Player(const sf::Texture& upTexture, const sf::Texture& downTexture,  sf::Vector2f position)
-    : upTexture(upTexture), downTexture(downTexture), sprite(downTexture), animationMode(std::nullopt)
+Player::Player(const sf::Texture& upTexture, const sf::Texture& downTexture, const sf::Texture& deathTexture, const sf::SoundBuffer& jumpSfx, const sf::SoundBuffer& deathSfx, sf::Vector2f position)
+    : sprite(downTexture), upTexture(upTexture), downTexture(downTexture), deathTexture(deathTexture), jumpSfx(jumpSfx), deathSfx(deathSfx), animationMode(std::nullopt)
 {
     sprite.setPosition(position);
     sprite.setOrigin(sprite.getLocalBounds().getCenter());
     sprite.setScale({0.65f, 0.65f});
+
+    this->jumpSfx.setVolume(40);
 }
 
 void Player::update(float deltaTime)
 {
-    if (!isPlaying)
+    if (animationMode.has_value())
     {
-        if (animationMode.has_value())
+        switch (animationMode.value())
         {
-            switch (animationMode.value())
-            {
-                case PlayerAnimationMode::MenuAnimation:
-                    updateMenuAnimation(deltaTime);
-                    break;
+            case PlayerAnimationMode::MenuAnimation:
+                updateMenuAnimation(deltaTime);
+                break;
 
-                default:
-                    break;
-            }
+            case PlayerAnimationMode::DeathAnimation:
+                updateDeathAnimation(deltaTime);
+                break;
+
+            default:
+                break;
         }
     }
-    else
+
+    if (isPlaying && !isDead)
     {
         sf::Vector2f newPos = sprite.getPosition();
         newPos.x += direction * HORIZONTAL_VELOCITY * deltaTime;
+
+        const bool jumpPressed =
+            sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+
+        const bool jumpJustPressed =
+            jumpPressed && !wasJumpPressed;
+
+        wasJumpPressed = jumpPressed;
+
+        if (jumpJustPressed)
+        {
+            velocityY = JUMP_VELOCITY;
+
+            jumpSfx.stop();
+            jumpSfx.play();
+        }
+        else
+            velocityY += GRAVITY * deltaTime;
+
+        velocityY = std::min(velocityY, MAX_FALL_SPEED);
+        newPos.y += velocityY * deltaTime;
+
+        sprite.setPosition(newPos);
+        updateJumpAnimation(deltaTime);
+    }
+    else if (isDead)
+    {
+        sf::Vector2f newPos = sprite.getPosition();
+        newPos.x += direction * HORIZONTAL_VELOCITY * deltaTime;
+        velocityY += GRAVITY * deltaTime;
+        velocityY = std::min(velocityY, MAX_FALL_SPEED);
+        newPos.y += velocityY * deltaTime;
         sprite.setPosition(newPos);
     }
 }
@@ -42,6 +79,30 @@ void Player::bounceHorizontal()
     sprite.setScale({-scale.x, scale.y});
 }
 
+void Player::bounceVertical(float xDirection, float yDirection)
+{
+    velocityY = DEATH_Y_BOUNCE_VELOCITY * yDirection;
+    direction = xDirection;
+}
+
+void Player::die()
+{
+    if (isDead)
+        return;
+
+    isPlaying = false;
+    isDead = true;
+    animationMode = PlayerAnimationMode::DeathAnimation;
+    animationTime = 0;
+    sprite.setTexture(deathTexture);
+    deathSfx.play();
+}
+
+bool Player::isPlayerDead() const
+{
+    return isDead;
+}
+
 sf::FloatRect Player::getBounds() const
 {
     return sprite.getGlobalBounds();
@@ -49,8 +110,8 @@ sf::FloatRect Player::getBounds() const
 
 void Player::updateMenuAnimation(float deltaTime)
 {
-    float oldY = sprite.getPosition().y;
-    float newY = menuAnimationStartPosY + std::sin(menuAnimationTime * MENU_ANIMATION_SPEED) * MENU_ANIMATION_AMPLITUDE;
+    const float oldY = sprite.getPosition().y;
+    float newY = menuAnimationStartPosY + std::sin(animationTime * MENU_ANIMATION_SPEED) * MENU_ANIMATION_AMPLITUDE;
     sprite.setPosition({sprite.getPosition().x, newY});
 
     if (oldY > newY)
@@ -58,7 +119,30 @@ void Player::updateMenuAnimation(float deltaTime)
     else
         sprite.setTexture(upTexture);
 
-    menuAnimationTime += deltaTime;
+    animationTime += deltaTime;
+}
+
+void Player::updateJumpAnimation(float deltaTime)
+{
+    if (velocityY > 0)
+        sprite.setTexture(downTexture);
+    else
+        sprite.setTexture(upTexture);
+}
+
+void Player::updateDeathAnimation(float deltaTime)
+{
+    animationTime += deltaTime;
+    const float progress = std::min(
+        animationTime / DEATH_ANIMATION_DURATION,
+        DEATH_ANIMATION_DURATION);
+
+    sf::Color currentColor = sprite.getColor();
+    currentColor.a = static_cast<std::uint8_t>(std::lerp(currentColor.a, 0, progress));
+    sprite.setColor(currentColor);
+
+    deathAnimationRotation += deltaTime * 1000;
+    sprite.rotate(sf::degrees(deathAnimationRotation));
 }
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const

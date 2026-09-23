@@ -6,9 +6,12 @@
 #include "Player.h"
 #include "ContentLoader.h"
 #include "core/GameState.h"
+#include <random>
 
-const int WORLD_WIDTH = 540;
-const int WORLD_HEIGHT = 960;
+constexpr int WORLD_WIDTH = 540;
+constexpr int WORLD_HEIGHT = 960;
+constexpr float TOP_SPIKES_HEIGHT = 45.0f;
+constexpr float BOTTOM_SPIKES_HEIGHT = 70.0f;
 
 class World
 {
@@ -27,6 +30,8 @@ private:
     sf::Sprite backgroundScore;
     sf::Color backgroundColor;
     sf::Text scoreText;
+    sf::Sound pointSound;
+    std::mt19937 rng{std::random_device{}()};
     int score = 0;
 
     void setScoreColors();

@@ -4,9 +4,14 @@ World::World(const ContentLoader& content)
     : content(content),
     player(content.getTexture(TextureId::PlayerUp),
              content.getTexture(TextureId::PlayerDown),
+             content.getTexture(TextureId::PlayerDead),
+             content.getSfx(SfxId::Jump),
+             content.getSfx(SfxId::Death),
              sf::Vector2f{WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f}),
     backgroundSpikes(content.getTexture(TextureId::BackgroundSpikes)), backgroundScore(content.getTexture(TextureId::BackgroundScore)),
-    scoreText(content.getFont(FontId::Score)) {
+    scoreText(content.getFont(FontId::Score)),
+    pointSound(content.getSfx(SfxId::Point))
+{
     sf::Vector2f backgroundCenter = backgroundSpikes.getLocalBounds().getCenter();
     backgroundSpikes.setOrigin(backgroundCenter);
     backgroundSpikes.setPosition({WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f});
@@ -20,7 +25,7 @@ World::World(const ContentLoader& content)
     scoreText.setCharacterSize(168);
     sf::Vector2f scoreTextCenter = scoreText.getLocalBounds().getCenter();
     scoreText.setOrigin(scoreTextCenter);
-    scoreText.setPosition({WORLD_WIDTH / 2, WORLD_HEIGHT / 2});
+    scoreText.setPosition({WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f});
 
     setScoreColors();
 }
@@ -35,8 +40,24 @@ void World::update(float deltaTime)
         playerBounds.position.x <= 0)
     {
         player.bounceHorizontal();
-        score++;
-        scoreText.setString(getScoreText());
+
+        if (!player.isPlayerDead())
+        {
+            score++;
+            scoreText.setString(getScoreText());
+            setScoreColors();
+            pointSound.play();
+        }
+    }
+
+    const bool touchedTopSpikes = playerBounds.position.y <= TOP_SPIKES_HEIGHT;
+    const bool touchedBottomSpikes = playerBounds.position.y + playerBounds.size.y >= WORLD_HEIGHT - BOTTOM_SPIKES_HEIGHT;
+
+    if (touchedTopSpikes || touchedBottomSpikes)
+    {
+        player.die();
+        std::uniform_real_distribution<float> dist(-6.0f, 6.0f);
+        player.bounceVertical(dist(rng), touchedBottomSpikes ? 1 : -1);
     }
 }
 
