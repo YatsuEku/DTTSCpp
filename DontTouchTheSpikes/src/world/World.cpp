@@ -27,6 +27,7 @@ World::World(const ContentLoader& content)
     scoreText.setOrigin(scoreTextCenter);
     scoreText.setPosition({WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f});
 
+    initializeSpikes();
     setScoreColors();
 }
 
@@ -43,13 +44,22 @@ void World::update(float deltaTime)
 
         if (!player.isPlayerDead())
         {
-            generateSpikes(SpikeSide::Left);
             score++;
             scoreText.setString(getScoreText());
             setScoreColors();
             pointSound.play();
+
+            currentSide = currentSide == SpikeSide::Right ? SpikeSide::Left : SpikeSide::Right;
+            hideSpikes();
+            showSpikes(currentSide);
         }
     }
+
+    for (auto& spike: leftSpikes)
+        spike.update(deltaTime);
+
+    for (auto& spike: rightSpikes)
+        spike.update(deltaTime);
 
     handleSpikeCollision();
 
@@ -82,7 +92,10 @@ void World::draw(sf::RenderTarget& target) const
     target.draw(scoreText);
     target.draw(player);
 
-    for (auto& spike : spikes)
+    for (auto& spike : leftSpikes)
+        target.draw(spike);
+
+    for (auto& spike : rightSpikes)
         target.draw(spike);
 }
 
@@ -103,6 +116,21 @@ void World::onGameStateChanged(GameState newState)
     }
 }
 
+void World::initializeSpikes()
+{
+    for (int i = 0; i < 13; i++)
+    {
+        Spike spike(content.getTexture(TextureId::Spike), {-19, i * 65.0f + TOP_SPIKES_HEIGHT + 35}, SpikeSide::Left);
+        leftSpikes.push_back(spike);
+    }
+
+    for (int i = 0; i < 13; i++)
+    {
+        Spike spike(content.getTexture(TextureId::Spike), {WORLD_WIDTH + 19, i * 65.0f + TOP_SPIKES_HEIGHT + 35}, SpikeSide::Right);
+        rightSpikes.push_back(spike);
+    }
+}
+
 void World::setScoreColors()
 {
     const auto& scheme = getBackgroundColorScheme(score);
@@ -110,7 +138,10 @@ void World::setScoreColors()
     backgroundColor = scheme.background;
     scoreText.setFillColor(scheme.background);
 
-    for (auto& spike: spikes)
+    for (auto& spike: leftSpikes)
+        spike.setSpikeColor(scheme.spikes);
+
+    for (auto& spike: rightSpikes)
         spike.setSpikeColor(scheme.spikes);
 }
 
@@ -126,25 +157,71 @@ std::string World::getScoreText() const
     return out;
 }
 
-void World::generateSpikes(SpikeSide side)
+void World::showSpikes(SpikeSide side)
 {
-    spikes.push_back(Spike(content.getTexture(TextureId::Spike), {100.0f, 200.0f}, SpikeSide::Left));
-    spikes.push_back(Spike(content.getTexture(TextureId::Spike), {200.0f, 200.0f}, SpikeSide::Right));
+    auto& spikes = side == SpikeSide::Left
+        ? leftSpikes
+        : rightSpikes;
+
+    const int count = getSpikeCount();
+    std::vector<int> indices(spikes.size());
+
+    std::iota(indices.begin(), indices.end(), 0);
+    std::shuffle(indices.begin(), indices.end(), rng);
+
+    for (int i = 0; i < count; i++)
+        spikes[indices[i]].show();
+}
+
+void World::hideSpikes()
+{
+    for (auto& spike : leftSpikes)
+        spike.hide();
+
+    for (auto& spike : rightSpikes)
+        spike.hide();
+}
+
+int World::getSpikeCount()
+{
+    if (score <= 1)
+        return 2;
+
+    if (score < 5)
+    {
+        std::uniform_int_distribution<int> dist(2,4);
+        return dist(rng);
+    }
+
+    const int level = score / 5;
+
+    const int minSpikes = std::min(3 + level, 10);
+    const int maxSpikes = std::min(4 + level, 10);
+
+    std::uniform_int_distribution<int> dist(minSpikes, maxSpikes);
+    return dist(rng);
 }
 
 void World::handleSpikeCollision()
 {
-    for (auto& spike: spikes)
-    {
-        auto spikeBounds = spike.getBounds();
-        auto playerBounds = player.getBounds();
+    for (auto& spike: leftSpikes)
+        handleCollisionWithSpike(spike);
 
-        if (spikeBounds.findIntersection(playerBounds))
-        {
-            player.die();
-            std::uniform_real_distribution<float> dist(-6.0f, 6.0f);
-            player.bounceHorizontal(dist(rng));
-        }
+    for (auto& spike: rightSpikes)
+        handleCollisionWithSpike(spike);
+}
+
+void World::handleCollisionWithSpike(const Spike &spike)
+{
+    auto spikeBounds = spike.getBounds();
+    auto playerBounds = player.getBounds();
+
+    if (spikeBounds.findIntersection(playerBounds) && spike.isVisible())
+    {
+        player.die();
+        std::uniform_real_distribution<float> dist(-6.0f, 6.0f);
+        player.bounceHorizontal(dist(rng));
+        hideSpikes();
     }
 }
 

@@ -34,13 +34,19 @@ private:
     sf::Text scoreText;
     sf::Sound pointSound;
     std::mt19937 rng{std::random_device{}()};
-    std::vector<Spike> spikes;
+    std::vector<Spike> leftSpikes;
+    std::vector<Spike> rightSpikes;
+    SpikeSide currentSide = SpikeSide::Right;
     int score = 0;
 
+    void initializeSpikes();
     void setScoreColors();
     std::string getScoreText() const;
-    void generateSpikes(SpikeSide side);
+    void showSpikes(SpikeSide side);
+    void hideSpikes();
+    int getSpikeCount();
     void handleSpikeCollision();
+    void handleCollisionWithSpike(const Spike& spike);
 
     static inline const BackgroundColorScheme& getBackgroundColorScheme(int score)
     {

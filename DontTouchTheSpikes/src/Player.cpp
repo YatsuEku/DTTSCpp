@@ -145,7 +145,7 @@ void Player::updateDeathAnimation(float deltaTime)
     animationTime += deltaTime;
     const float progress = std::min(
         animationTime / DEATH_ANIMATION_DURATION,
-        DEATH_ANIMATION_DURATION);
+        1.0f);
 
     sf::Color currentColor = sprite.getColor();
     currentColor.a = static_cast<std::uint8_t>(std::lerp(currentColor.a, 0, progress));
