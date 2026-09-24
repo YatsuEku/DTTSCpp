@@ -70,6 +70,9 @@ void Player::update(float deltaTime)
         newPos.y += velocityY * deltaTime;
         sprite.setPosition(newPos);
     }
+
+    if (isBounceOnCooldown)
+        updateBounceCooldown(deltaTime);
 }
 
 void Player::bounceHorizontal()
@@ -77,11 +80,13 @@ void Player::bounceHorizontal()
     direction *= -1;
     sf::Vector2f scale = sprite.getScale();
     sprite.setScale({-scale.x, scale.y});
+    isBounceOnCooldown = true;
 }
 
 void Player::bounceHorizontal(float direction)
 {
     this->direction = direction;
+    isBounceOnCooldown = true;
 }
 
 void Player::bounceVertical(float xDirection, float yDirection)
@@ -118,6 +123,11 @@ sf::FloatRect Player::getBounds() const
     return sprite.getGlobalBounds();
 }
 
+bool Player::isHorizontalBounceOnCooldown() const
+{
+    return isBounceOnCooldown;
+}
+
 void Player::updateMenuAnimation(float deltaTime)
 {
     const float oldY = sprite.getPosition().y;
@@ -152,6 +162,17 @@ void Player::updateDeathAnimation(float deltaTime)
     sprite.setColor(currentColor);
 
     sprite.rotate(sf::degrees(DEATH_ROTATION_SPEED * deltaTime));
+}
+
+void Player::updateBounceCooldown(float deltaTime)
+{
+    hBounceCooldownTime += deltaTime;
+
+    if (hBounceCooldownTime >= BOUNCE_COOLDOWN_DURATION)
+    {
+        hBounceCooldownTime = 0;
+        isBounceOnCooldown = false;
+    }
 }
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const

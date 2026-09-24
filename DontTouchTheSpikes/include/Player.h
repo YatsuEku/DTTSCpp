@@ -15,6 +15,7 @@ constexpr float DEATH_Y_BOUNCE_VELOCITY = -900.0f;
 
 constexpr float DEATH_ANIMATION_DURATION = 4.0f;
 constexpr float DEATH_ROTATION_SPEED = 1000.0f;
+constexpr float BOUNCE_COOLDOWN_DURATION = 0.8f;
 
 enum class PlayerAnimationMode
 {
@@ -38,6 +39,7 @@ public:
     bool isPlayerDead() const;
     float getVelocityY() const;
     sf::FloatRect getBounds() const;
+    bool isHorizontalBounceOnCooldown() const;
 private:
     sf::Sprite sprite;
     sf::Texture upTexture;
@@ -50,13 +52,16 @@ private:
     float animationTime = 0;
     float direction = 1; // 1 right -1 left
     float velocityY = 0;
+    float hBounceCooldownTime = 0.0f;
     bool isPlaying = false;
     bool isDead = false;
     bool wasJumpPressed = false;
+    bool isBounceOnCooldown = false;
 
     void updateMenuAnimation(float deltaTime);
     void updateJumpAnimation(float deltaTime);
     void updateDeathAnimation(float deltaTime);
+    void updateBounceCooldown(float deltaTime);
 
 protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

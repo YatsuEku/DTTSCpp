@@ -40,9 +40,7 @@ void World::update(float deltaTime)
     if (playerBounds.position.x + playerBounds.size.x >= WORLD_WIDTH ||
         playerBounds.position.x <= 0)
     {
-        player.bounceHorizontal();
-
-        if (!player.isPlayerDead())
+        if (!player.isPlayerDead() && !player.isHorizontalBounceOnCooldown())
         {
             score++;
             scoreText.setString(getScoreText());
@@ -53,6 +51,8 @@ void World::update(float deltaTime)
             hideSpikes();
             showSpikes(currentSide);
         }
+
+        player.bounceHorizontal();
     }
 
     for (auto& spike: leftSpikes)
@@ -164,13 +164,41 @@ void World::showSpikes(SpikeSide side)
         : rightSpikes;
 
     const int count = getSpikeCount();
-    std::vector<int> indices(spikes.size());
 
-    std::iota(indices.begin(), indices.end(), 0);
-    std::shuffle(indices.begin(), indices.end(), rng);
+    constexpr int safeGapSize = 3;
 
-    for (int i = 0; i < count; i++)
-        spikes[indices[i]].show();
+    std::uniform_int_distribution<int> gapDist(
+        0,
+        static_cast<int>(spikes.size()) - safeGapSize
+    );
+
+    const int gapStart = gapDist(rng);
+
+    std::vector<int> availableIndices;
+
+    for (int i = 0; i < spikes.size(); i++)
+    {
+        const bool isInsideSafeGap =
+            i >= gapStart &&
+            i < gapStart + safeGapSize;
+
+        if (!isInsideSafeGap)
+            availableIndices.push_back(i);
+    }
+
+    std::shuffle(
+        availableIndices.begin(),
+        availableIndices.end(),
+        rng
+    );
+
+    const int spikeCount = std::min(
+        count,
+        static_cast<int>(availableIndices.size())
+    );
+
+    for (int i = 0; i < spikeCount; i++)
+        spikes[availableIndices[i]].show();
 }
 
 void World::hideSpikes()
