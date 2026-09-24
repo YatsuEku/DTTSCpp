@@ -23,6 +23,12 @@ public:
     void draw(sf::RenderTarget& target) const;
     void update(float deltaTime);
     void onGameStateChanged(GameState newState);
+    bool isGameOver() const;
+    bool isNewHighScore() const;
+    int getScore() const;
+    int getHighestScore() const;
+    void setHighestScore(int highScore);
+    void restartGame();
     [[nodiscard]] sf::Color getBackgroundColor() const;
 
 private:
@@ -38,6 +44,9 @@ private:
     std::vector<Spike> rightSpikes;
     SpikeSide currentSide = SpikeSide::Right;
     int score = 0;
+    int highestScore = 0;
+    bool newHighScore = false;
+    bool isOver = false;
 
     void initializeSpikes();
     void setScoreColors();
@@ -47,6 +56,7 @@ private:
     int getSpikeCount();
     void handleSpikeCollision();
     void handleCollisionWithSpike(const Spike& spike);
+    void gameOver();
 
     static inline const BackgroundColorScheme& getBackgroundColorScheme(int score)
     {

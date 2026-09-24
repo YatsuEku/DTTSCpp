@@ -69,7 +69,7 @@ void World::update(float deltaTime)
     if (touchedTopSpikes && player.getVelocityY() < 0.0f)
     {
         if (!player.isPlayerDead())
-            player.die();
+            gameOver();
 
         std::uniform_real_distribution<float> dist(-6.0f, 6.0f);
         player.bounceVertical(dist(rng), -1.0f);
@@ -78,7 +78,7 @@ void World::update(float deltaTime)
     if (touchedBottomSpikes && player.getVelocityY() > 0.0f)
     {
         if (!player.isPlayerDead())
-            player.die();
+            gameOver();
 
         std::uniform_real_distribution<float> dist(-6.0f, 6.0f);
         player.bounceVertical(dist(rng), 1.0f);
@@ -104,6 +104,7 @@ void World::onGameStateChanged(GameState newState)
     switch(newState)
         {
         case GameState::Menu:
+            restartGame();
             player.playMenuAnimation();
             break;
 
@@ -114,6 +115,43 @@ void World::onGameStateChanged(GameState newState)
         default:
             break;
     }
+}
+
+bool World::isGameOver() const
+{
+    return isOver;
+}
+
+bool World::isNewHighScore() const
+{
+    return newHighScore;
+}
+
+int World::getScore() const
+{
+    return score;
+}
+
+int World::getHighestScore() const
+{
+    return highestScore;
+}
+
+void World::setHighestScore(int highScore)
+{
+    highestScore = highScore;
+}
+
+void World::restartGame()
+{
+    hideSpikes();
+    currentSide = SpikeSide::Right;
+    player.restartPlayer(sf::Vector2f{WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f});
+    score = 0;
+    newHighScore = false;
+    isOver = false;
+    setScoreColors();
+    scoreText.setString(getScoreText());
 }
 
 void World::initializeSpikes()
@@ -246,11 +284,22 @@ void World::handleCollisionWithSpike(const Spike &spike)
 
     if (spikeBounds.findIntersection(playerBounds) && spike.isVisible())
     {
-        player.die();
+        gameOver();
         std::uniform_real_distribution<float> dist(-6.0f, 6.0f);
         player.bounceHorizontal(dist(rng));
         hideSpikes();
     }
+}
+
+void World::gameOver()
+{
+    if (isOver)
+        return;
+
+    player.die();
+    newHighScore = highestScore < score;
+    highestScore = std::max(highestScore, score);
+    isOver = true;
 }
 
 sf::Color World::getBackgroundColor() const

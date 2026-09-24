@@ -12,7 +12,8 @@ enum class TextureId
     PlayerDead,
     BackgroundSpikes,
     BackgroundScore,
-    Spike
+    Spike,
+    Button
 };
 
 enum class FontId

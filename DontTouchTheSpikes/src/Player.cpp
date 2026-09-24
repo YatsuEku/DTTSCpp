@@ -128,6 +128,18 @@ bool Player::isHorizontalBounceOnCooldown() const
     return isBounceOnCooldown;
 }
 
+void Player::restartPlayer(const sf::Vector2f& position)
+{
+    sprite.setPosition(position);
+    animationTime = 0;
+    animationMode = PlayerAnimationMode::MenuAnimation;
+    sprite.setColor(sf::Color::White);
+    sprite.setRotation(sf::degrees(0));
+    sprite.setScale({0.65f, 0.65f});
+    direction = 1;
+    isDead = false;
+}
+
 void Player::updateMenuAnimation(float deltaTime)
 {
     const float oldY = sprite.getPosition().y;

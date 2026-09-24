@@ -14,12 +14,14 @@ void ContentLoader::load()
     loadTexture(TextureId::BackgroundSpikes, "Spikes.png");
     loadTexture(TextureId::BackgroundScore, "ScoreCircle.png");
     loadTexture(TextureId::PlayerDead, "Bird_dead.png");
+    loadTexture(TextureId::Button, "Button.png");
     loadTexture(TextureId::Spike, "Spike.png", true);
     loadFont(FontId::Menu, "menu.otf");
     loadFont(FontId::Score, "score.ttf");
     loadSfx(SfxId::Point, "point.wav");
     loadSfx(SfxId::Jump, "jump.wav");
     loadSfx(SfxId::Death, "dead.wav");
+    loadSfx(SfxId::Button, "button.wav");
 }
 
 void ContentLoader::loadTexture(TextureId id, const std::filesystem::path& path, bool smooth)

@@ -40,6 +40,7 @@ public:
     float getVelocityY() const;
     sf::FloatRect getBounds() const;
     bool isHorizontalBounceOnCooldown() const;
+    void restartPlayer(const sf::Vector2f& position);
 private:
     sf::Sprite sprite;
     sf::Texture upTexture;
